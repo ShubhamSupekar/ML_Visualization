@@ -7,7 +7,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
 
-df = pd.read_csv('housing.csv')
+# df = pd.read_csv('housing.csv')
+
+# df = pd.read_csv('Customer Purchasing Behaviors.csv')
+
+df = pd.read_csv('laptop_price - dataset.csv')
+
 
 # Step 1: Ask the user to select the target column
 print("Available columns in the dataset:", df.columns)
