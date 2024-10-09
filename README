@@ -2,6 +2,7 @@ MlVisio is the envirnoment created for this project
 Install Miniconda
 to activate the envirnoment run below command:
 conda env create -f environment.yml
+conda activate ml_visio
 Windows
   python src\app.py
 Unix
