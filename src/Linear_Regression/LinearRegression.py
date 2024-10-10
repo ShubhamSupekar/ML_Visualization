@@ -1,10 +1,18 @@
+# with stepwise forward selection mwthod for feature selection 
+
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
-# Load Dataset
-df = pd.read_csv('housing.csv')
+
+# df = pd.read_csv('Datasets\housing.csv')
+
+# df = pd.read_csv('Datasets\Customer Purchasing Behaviors.csv')
+
+df = pd.read_csv('Datasets/laptop_price - dataset.csv')
+
 
 # Step 1: Ask the user to select the target column
 print("Available columns in the dataset:", df.columns)
@@ -33,18 +41,36 @@ for i in range(len(correlation_matrix.columns)):
 
 print(f"\nFiltered Features after applying correlation threshold: {filtered_columns}")
 
-# Step 5: Prepare train-test split
-X_train, X_test, y_train, y_test = train_test_split(df[filtered_columns], df[target_column], test_size=0.2, random_state=42)
+# Stepwise forward selection function
+def forward_selection(features_list, target):
+    selected_features = []
+    best_r2 = -float('inf')
+    current_best_r2 = 0
+    while len(features_list) > 0:
+        temp_r2_scores = []
+        for feature in features_list:
+            combo = selected_features + [feature]
+            X_train, X_test, y_train, y_test = train_test_split(df[combo], df[target], test_size=0.2, random_state=42)
+            model = LinearRegression()
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            r2 = r2_score(y_test, y_pred)
+            temp_r2_scores.append((combo, r2))
+        
+        # Find the best new feature to add
+        best_combo, best_r2 = max(temp_r2_scores, key=lambda x: x[1])
+        
+        if best_r2 > current_best_r2:
+            current_best_r2 = best_r2
+            selected_features = best_combo
+            features_list.remove(best_combo[-1])  # Remove the best feature from available features
+        else:
+            break  # If no improvement, stop
+    
+    return selected_features, current_best_r2
 
-# Step 6: Train the linear regression model on the filtered features
-model = LinearRegression()
-model.fit(X_train, y_train)
+# Stepwise feature selection
+best_features, best_r2 = forward_selection(filtered_columns.copy(), target_column)
 
-# Step 7: Make predictions and evaluate the model
-y_pred = model.predict(X_test)
-r2 = r2_score(y_test, y_pred)
-
-# Step 8: Display the result of the model
-print("\nModel Evaluation")
-print(f"Features used: {filtered_columns}")
-print(f"R² Score: {r2}")
+# Output the result
+print(f"\nBest combination of features: {best_features}, with an R² score of: {best_r2}")
